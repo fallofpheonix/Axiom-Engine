@@ -1,33 +1,49 @@
 # Axiom Engine
 
-Axiom Engine is a deterministic scene compiler core for declarative 3D scene generation.
+Axiom Engine is a modular autonomous research system combining:
 
-Current scope:
+- Dreamer-style RSSM world model
+- latent actor-critic agents
+- PettingZoo-style multi-agent coordination
+- symbolic communication and soft rule reasoning
+- knowledge graph based scientific loop
+- Ray-style queue and worker infrastructure
+- meta-learning and bounded self-improvement primitives
+
+## Directory Structure
 
 ```text
-SceneSpec YAML
--> validation
--> symbolic IR
--> dependency graph
--> constraint solve
--> resolved IR
--> execution plan
--> Blender bpy script generation
+core/
+  world_model.py        RSSM, Dreamer-style wrapper, imagination rollout
+  agent.py              latent actor, critic, centralized critic
+  multi_agent.py        multi-agent shared-environment coordinator
+  language.py           symbolic communication channel
+  reasoning.py          soft rule engine
+
+science/
+  knowledge_graph.py    concept nodes and relation edges
+  hypothesis.py         hypothesis generation
+  experiment.py         experiment planning and simulation execution
+  analyzer.py           result analysis and acceptance
+
+infrastructure/
+  orchestrator.py       autonomous research loop
+  worker.py             long-running task worker
+  queue.py              bounded task queue
+  storage.py            JSONL persistence
+
+optimization/
+  meta_learning.py      genome and evolution strategy
+  rsi.py                proposal-validation self-improvement loop
+
+utils/
+  config.py             runtime config
+  metrics.py            metric accumulator
+  logging.py            logging setup
+
+src/
+  Existing Blender scene compiler vertical slice.
 ```
-
-This repository intentionally starts with the compiler vertical slice. It does not yet include a Blender runtime, UI, neural world model, RenderGraph, or autonomous research platform.
-
-## Supported Vertical Slice
-
-- primitive objects: `cube`, `plane`
-- object references by ID
-- dependency graph and cycle rejection
-- constraints: `sit_on`, `above`, `align`
-- custom equations, including `distance(a, b) = value`
-- hard constraints that lock axes
-- weighted soft constraints solved by NumPy least squares
-- execution plan generation
-- Blender Python script generation
 
 ## Install
 
@@ -36,77 +52,52 @@ python3 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 ```
 
-## Run
+## Run Axiom Engine
 
 ```bash
-.venv/bin/python main.py examples/simple.yaml
+.venv/bin/python main.py --iterations 3
 ```
 
-The command prints:
+Output includes:
 
-- original validated scene
-- symbolic IR
-- resolved IR
-- execution plan
-- generated `bpy` script
+- iterations executed
+- accepted/rejected experiment count
+- resulting knowledge graph
+- experiment records
 
-## Test
+## Run Tests
 
 ```bash
 .venv/bin/python -m pytest -q
 ```
 
-Expected status:
+Current expected result:
 
 ```text
 15 passed
 ```
 
-## Example
+## Current Status
 
-```yaml
-version: 1
-objects:
-  - id: plane
-    type: mesh
-    geometry: plane
-    size: [4.0, 4.0, 0.0]
-    location: [0.0, 0.0, 0.0]
+Implemented:
 
-  - id: cube
-    type: mesh
-    geometry: cube
-    size: [1.0, 1.0, 1.0]
-    constraints:
-      - type: sit_on
-        target: plane
-```
+- RSSM world model with prior/posterior latent dynamics
+- Dreamer-style imagination rollout interface
+- actor-critic agent operating in latent space
+- multi-agent coordinator using a PettingZoo-style protocol
+- symbolic speaker/listener module
+- soft rule engine
+- knowledge graph add/query
+- hypothesis -> experiment -> analyze -> graph update loop
+- bounded task queue and worker abstraction
+- JSONL persistence
+- meta-learning genome and RSI validation loop
+- Blender compiler vertical slice remains intact under `src/`
 
-Resolved result:
+Reference repos are cloned outside this repository at:
 
 ```text
-cube.location.z = 0.5
+/Users/fallofpheonix/Project/axiom-reference-repos
 ```
 
-## Project Layout
-
-```text
-src/schema/      SceneSpec validation
-src/ir/          IR, dependency graph, constraint DSL
-src/compiler/    SceneSpec -> symbolic IR
-src/solver/      symbolic IR -> resolved IR
-src/planner/     resolved IR -> execution plan
-src/codegen/     execution plan -> bpy script
-tests/           compiler/solver regression tests
-examples/        minimal input scenes
-```
-
-## Non-Goals For Current Phase
-
-- no UI
-- no ML dependency
-- no RenderGraph
-- no distributed runtime
-- no Blender process execution by default
-
-The next implementation phase should wire the generated `bpy` script into a safe headless Blender runner.
+They are reference components, not vendored source.
