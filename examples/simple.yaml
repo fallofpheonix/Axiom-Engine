@@ -1,0 +1,19 @@
+version: 1
+objects:
+  - id: plane
+    type: mesh
+    geometry: plane
+    kind: plane
+    size: [4.0, 4.0, 0.0]
+    location: [0.0, 0.0, 0.0]
+
+  - id: cube
+    type: mesh
+    geometry: cube
+    kind: cube
+    size: [1.0, 1.0, 1.0]
+    constraints:
+      - type: sit_on
+        target: plane
+        offset: [0.0, 0.0, 0.0]
+        priority: 1
